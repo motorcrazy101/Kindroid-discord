@@ -269,14 +269,18 @@ async function handleDirectMessage(
   });
 
   try {
-    // Show typing indicator
-    if (message.channel instanceof DMChannel) {
-      try {
+  // Show typing indicator
+      if (
+        message.channel instanceof BaseGuildTextChannel ||
+        message.channel instanceof DMChannel
+      ) {
+		try {
         await message.channel.sendTyping();
       } catch (typingError) {
-        console.warn(`[Bot ${botConfig.id}] Failed to send typing indicator:`, typingError);
-        // Continue anyway - don't fail the entire message handler
-      }
+		console.warn(`[Bot ${botConfig.id}] Failed to send typing indicator:`, typingError);
+		// Continue anyway - don't fail the entire message handler
+	  }
+    }
 
       // Fetch recent conversation
       const conversationArray = await ephemeralFetchConversation(
