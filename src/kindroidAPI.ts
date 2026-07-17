@@ -54,6 +54,7 @@ export async function callKindroidAI(
     return {
       type: "success",
       reply: response.data.reply.replace(/@(everyone|here)/g, ""),
+      media: response.data.media || [],
     };
   } catch (error) {
     console.error("Error calling Kindroid AI:", (error as Error).message);
