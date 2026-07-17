@@ -303,7 +303,6 @@ async function handleDirectMessage(
 
       // Send the AI's reply
       await message.reply(aiResult.reply);
-    }
   } catch (error) {
     console.error(`[Bot ${botConfig.id}] DM Error:`, error);
     await message.reply(
