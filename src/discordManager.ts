@@ -214,7 +214,12 @@ async function createDiscordClientForBot(
         message.channel instanceof BaseGuildTextChannel ||
         message.channel instanceof DMChannel
       ) {
-        await message.channel.sendTyping();
+        try {
+          await message.channel.sendTyping();
+        } catch (typingError) {
+          console.warn(`[Bot ${botConfig.id}] Failed to send typing indicator:`, typingError);
+          // Continue anyway - don't fail the entire message handler
+        }
       }
 
       // Fetch recent conversation with caching
