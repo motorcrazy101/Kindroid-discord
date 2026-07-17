@@ -16,6 +16,7 @@ export interface KindroidResponse {
   reply: string;
   stop_reason?: string | null;
   error?: string;
+  media?: Array<{ type: string; url: string; mime_type: string }>;
 }
 
 export interface DMConversationCount {
@@ -27,6 +28,7 @@ export type KindroidAIResult =
   | {
       type: "success";
       reply: string;
+      media?: Array<{ type: string; url: string; mime_type: string }>;
     }
   | {
       type: "rate_limited";

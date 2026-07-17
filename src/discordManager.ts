@@ -8,10 +8,29 @@ import {
   BaseGuildTextChannel,
   PermissionFlagsBits,
   Partials,
+  AttachmentBuilder,
 } from "discord.js";
 import { ephemeralFetchConversation } from "./messageFetch";
 import { callKindroidAI } from "./kindroidAPI";
 import { BotConfig, DMConversationCount } from "./types";
+
+/**
+ * Converts an array of media objects (from Kindroid's response) into Discord
+ * AttachmentBuilder instances that can be sent alongside a message.
+ * @param media - array of media objects containing image URLs
+ * @returns array of AttachmentBuilder instances for image media
+ */
+function buildImageAttachments(
+  media?: Array<{ type: string; url: string; mime_type: string }>
+): AttachmentBuilder[] {
+  if (!media || media.length === 0) {
+    return [];
+  }
+
+  return media
+    .filter((item) => item.url)
+    .map((item) => new AttachmentBuilder(item.url));
+}
 
 //Bot back and forth (prevent infinite loop but allow for mentioning other bots in conversation)
 type BotConversationChain = {
@@ -204,13 +223,21 @@ async function createDiscordClientForBot(
       }
 
       // If it was a mention, reply to the message. Otherwise, send as normal message
+      const imageAttachments = buildImageAttachments(aiResult.media);
+
       if (isMentioned) {
-        await message.reply(aiResult.reply);
+        await message.reply({
+          content: aiResult.reply,
+          files: imageAttachments.length > 0 ? imageAttachments : undefined,
+        });
       } else if (
         message.channel instanceof BaseGuildTextChannel ||
         message.channel instanceof DMChannel
       ) {
-        await message.channel.send(aiResult.reply);
+        await message.channel.send({
+          content: aiResult.reply,
+          files: imageAttachments.length > 0 ? imageAttachments : undefined,
+        });
       }
     } catch (error) {
       console.error(`[Bot ${botConfig.id}] Error:`, error);
@@ -302,7 +329,11 @@ async function handleDirectMessage(
       }
 
       // Send the AI's reply
-      await message.reply(aiResult.reply);
+      const imageAttachments = buildImageAttachments(aiResult.media);
+      await message.reply({
+        content: aiResult.reply,
+        files: imageAttachments.length > 0 ? imageAttachments : undefined,
+      });
   } catch (error) {
     console.error(`[Bot ${botConfig.id}] DM Error:`, error);
     await message.reply(
