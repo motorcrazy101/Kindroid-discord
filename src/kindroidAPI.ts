@@ -47,6 +47,12 @@ export async function callKindroidAI(
       }
     );
 
+    console.log(
+      "=== KINDROID FULL RESPONSE ===",
+      JSON.stringify(response.data, null, 2)
+    );
+    console.log("Media array:", response.data.media);
+
     if (!response.data.success) {
       throw new Error(response.data.error || "API request failed");
     }
