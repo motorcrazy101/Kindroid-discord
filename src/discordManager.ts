@@ -23,13 +23,27 @@ import { BotConfig, DMConversationCount } from "./types";
 function buildImageAttachments(
   media?: Array<{ type: string; url: string; mime_type: string }>
 ): AttachmentBuilder[] {
+  console.log("buildImageAttachments called with:", media);
+
   if (!media || media.length === 0) {
     return [];
   }
 
-  return media
+  const attachments = media
     .filter((item) => item.url)
-    .map((item) => new AttachmentBuilder(item.url));
+    .map((item) => {
+      try {
+        return new AttachmentBuilder(item.url);
+      } catch (error) {
+        console.error("Error creating AttachmentBuilder for", item, error);
+        return null;
+      }
+    })
+    .filter((item): item is AttachmentBuilder => item !== null);
+
+  console.log("Created attachments:", attachments.length);
+
+  return attachments;
 }
 
 //Bot back and forth (prevent infinite loop but allow for mentioning other bots in conversation)
